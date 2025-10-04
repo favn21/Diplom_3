@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: tests.RegistrationTests
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 183.584 s - in tests.RegistrationTests
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 87.408 s - in tests.RegistrationTests

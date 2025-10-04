@@ -31,6 +31,17 @@ public class DriverFactory {
             throw new IllegalArgumentException("Неподдерживаемый браузер: " + browser);
         }
     }
+    private static WebDriver createYandexDriver() {
+        String yandexBinaryPath = "C:\\Users\\User\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe";
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBinary(new File(yandexBinaryPath));
+        options.addArguments("--start-maximized");
+
+        WebDriverManager.chromedriver().driverVersion("138.0.7204.190").setup();
+
+        return new ChromeDriver(options);
+    }
 }
 
 

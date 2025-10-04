@@ -2,3 +2,5 @@ pages\RegistrationPage.class
 pages\ConstructorPage.class
 pages\LoginPage.class
 utils\DriverFactory.class
+utils\UserClient.class
+model\User.class

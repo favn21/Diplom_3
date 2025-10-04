@@ -70,9 +70,15 @@ public class ConstructorPage {
             default: throw new IllegalArgumentException("Неизвестный раздел: " + sectionName);
         }
     }
+    public boolean isSectionActive(String sectionName) {
+        WebElement sectionTab = driver.findElement(By.xpath("//span[text()='" + sectionName + "']/parent::div[contains(@class,'tab_tab__')]"));
+        String classAttr = sectionTab.getAttribute("class");
+        return classAttr.contains("tab_tab_type_current__2BEPc");
+    }
 
-
-
+    public void openMainPage() {
+        driver.get("https://stellarburgers.nomoreparties.site/");
+    }
 
 
 

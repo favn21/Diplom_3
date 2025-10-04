@@ -1,61 +1,67 @@
 package tests;
 
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
-import io.qameta.allure.Description;
-import io.qameta.allure.Story;
+import io.qameta.allure.*;
 import io.qameta.allure.junit4.DisplayName;
+import model.User;
 import org.junit.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import pages.LoginPage;
 import utils.DriverFactory;
+import utils.UserClient;
 
-import java.util.Arrays;
-import java.util.Collection;
-
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(Parameterized.class)
 @Epic("Авторизация")
 @Feature("Вход в систему")
 public class LoginTests {
 
-    private final String browser;
     private WebDriver driver;
     private LoginPage loginPage;
 
-
-    private final String validEmail = "us5237@example.com";
-    private final String validPassword = "validPassword3";
-
-
-    public LoginTests(String browser) {
-        this.browser = browser;
-    }
-
-
-    @Parameterized.Parameters(name = "Browser: {0}")
-    public static Collection<String> browsers() {
-        return Arrays.asList("chrome", "yandex");
-    }
+    private String email;
+    private String password;
+    private String name;
+    private String accessToken;
 
     @Before
     public void setUp() {
-        driver = DriverFactory.createDriver(browser);
+
+        email = "testuser" + System.currentTimeMillis() + "@mail.ru";
+        password = "Password123!";
+        name = "TestUser" + System.currentTimeMillis();
+        User user = new User(email, password, name);
+
+
+        accessToken = UserClient.registerUser(user)
+                .statusCode(SC_OK)
+                .body("success", equalTo(true))
+                .extract()
+                .path("accessToken");
+
+        if (!accessToken.startsWith("Bearer ")) {
+            accessToken = "Bearer " + accessToken;
+        }
+
+
+        driver = DriverFactory.createDriver(System.getProperty("browser", "chrome"));
         driver.manage().window().setSize(new Dimension(1920, 1080));
         loginPage = new LoginPage(driver);
     }
 
     @After
     public void tearDown() {
+
+        if (accessToken != null) {
+            UserClient.deleteUser(accessToken).statusCode(SC_ACCEPTED);
+        }
         if (driver != null) {
             driver.quit();
         }
     }
-
 
     @Test
     @Story("Вход через кнопку 'Войти в аккаунт' на главной")
@@ -64,8 +70,8 @@ public class LoginTests {
     public void loginViaHomeButton() {
         loginPage.openMain();
         loginPage.clickLoginFromHome();
-        loginPage.login(validEmail, validPassword);
-        assertTrue("Пользователь не авторизовался через главную страницу", loginPage.isUserLoggedIn());
+        loginPage.login(email, password);
+        assertTrue(loginPage.isUserLoggedIn());
     }
 
     @Test
@@ -75,8 +81,8 @@ public class LoginTests {
     public void loginViaPersonalAccountButton() {
         loginPage.openMain();
         loginPage.clickLoginFromPersonalAccount();
-        loginPage.login(validEmail, validPassword);
-        assertTrue("Пользователь не авторизовался через Личный кабинет", loginPage.isUserLoggedIn());
+        loginPage.login(email, password);
+        assertTrue(loginPage.isUserLoggedIn());
     }
 
     @Test
@@ -84,17 +90,10 @@ public class LoginTests {
     @DisplayName("Успешный вход через форму регистрации")
     @Description("Проверка, что пользователь может войти через форму регистрации")
     public void loginViaRegistrationForm() {
-
         driver.get("https://stellarburgers.nomoreparties.site/register");
-
-
         loginPage.clickEnterButton();
-
-
-        loginPage.login(validEmail, validPassword);
-
-
-        assertTrue("Пользователь не авторизовался через форму регистрации", loginPage.isUserLoggedIn());
+        loginPage.login(email, password);
+        assertTrue(loginPage.isUserLoggedIn());
     }
 
     @Test
@@ -104,10 +103,14 @@ public class LoginTests {
     public void loginViaRecoveryForm() {
         driver.get("https://stellarburgers.nomoreparties.site/register");
         loginPage.clickLoginFromRecoveryForm();
-        loginPage.login(validEmail, validPassword);
-        assertTrue("Пользователь не авторизовался через форму восстановления пароля", loginPage.isUserLoggedIn());
+        loginPage.login(email, password);
+        assertTrue(loginPage.isUserLoggedIn());
     }
 }
+
+
+
+
 
 
 
