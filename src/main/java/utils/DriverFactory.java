@@ -31,6 +31,7 @@ public class DriverFactory {
             throw new IllegalArgumentException("Неподдерживаемый браузер: " + browser);
         }
     }
+    @Step("Создание WebDriver для браузера Yandex")
     private static WebDriver createYandexDriver() {
         String yandexBinaryPath = "C:\\Users\\User\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe";
 

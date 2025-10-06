@@ -12,10 +12,6 @@ public class ConstructorPage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    public ConstructorPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    }
 
     private By bunsTab = By.xpath("//span[text()='Булки']");
     private By saucesTab = By.xpath("//span[text()='Соусы']");
@@ -24,12 +20,30 @@ public class ConstructorPage {
     private By bunsSection = By.xpath("//h2[text()='Булки']");
     private By saucesSection = By.xpath("//h2[text()='Соусы']");
     private By fillingsSection = By.xpath("//h2[text()='Начинки']");
+
+
+    private final String activeTabTemplate = "//span[text()='%s']/parent::div[contains(@class,'tab_tab__')]";
+
+    public ConstructorPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
     @Step("Открыть раздел Булки")
-    public void openBunsTab() { clickTab(bunsTab, bunsSection); }
+    public void openBunsTab() {
+        clickTab(bunsTab, bunsSection);
+    }
+
     @Step("Открыть раздел Соусы")
-    public void openSaucesTab() { clickTab(saucesTab, saucesSection); }
+    public void openSaucesTab() {
+        clickTab(saucesTab, saucesSection);
+    }
+
     @Step("Открыть раздел Начинки")
-    public void openFillingsTab() { clickTab(fillingsTab, fillingsSection); }
+    public void openFillingsTab() {
+        clickTab(fillingsTab, fillingsSection);
+    }
+
     @Step("Клик по вкладке")
     private void clickTab(By tab, By section) {
         WebElement tabElement = wait.until(ExpectedConditions.elementToBeClickable(tab));
@@ -70,18 +84,18 @@ public class ConstructorPage {
             default: throw new IllegalArgumentException("Неизвестный раздел: " + sectionName);
         }
     }
+
+    @Step("Проверить, что раздел активен")
     public boolean isSectionActive(String sectionName) {
-        WebElement sectionTab = driver.findElement(By.xpath("//span[text()='" + sectionName + "']/parent::div[contains(@class,'tab_tab__')]"));
-        String classAttr = sectionTab.getAttribute("class");
-        return classAttr.contains("tab_tab_type_current__2BEPc");
+        By activeTabLocator = By.xpath(String.format(activeTabTemplate, sectionName));
+        WebElement sectionTab = driver.findElement(activeTabLocator);
+        return sectionTab.getAttribute("class").contains("tab_tab_type_current__2BEPc");
     }
 
+    @Step("Открыть главную страницу конструктора")
     public void openMainPage() {
         driver.get("https://stellarburgers.nomoreparties.site/");
     }
-
-
-
 }
 
 
